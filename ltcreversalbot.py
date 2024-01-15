@@ -11,8 +11,8 @@ import schedule
 from pybit.unified_trading import HTTP
 
 bybit = ccxt.bybit({
-    'apiKey': '',
-    'secret': '',
+    'apiKey': 'i1UQddbDArbewF1ETS',
+    'secret': 'VHyrOH6gKFjyyPf3zkceaNskQOEWM1Vj63bP',
     'enableRateLimit': True,
     'options': {
         'defaultType': 'future',
@@ -21,19 +21,17 @@ bybit = ccxt.bybit({
 
 })
 
-
 # Create direct HTTP session instance
-api_key = ""
-api_secret = ""
+api_key = "i1UQddbDArbewF1ETS"
+api_secret = "VHyrOH6gKFjyyPf3zkceaNskQOEWM1Vj63bP"
 
 session = HTTP(
     api_key=api_key,
     api_secret=api_secret,
-    testnet= False,
+    testnet= True,#False
 )
 
-
-#bybit.set_sandbox_mode(True) # activates testnet mode
+bybit.set_sandbox_mode(True)  # activates testnet mode
 #bybit future contract enable
 bybit.options["dafaultType"] = 'future'
 bybit.load_markets()
