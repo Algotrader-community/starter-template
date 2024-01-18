@@ -78,7 +78,7 @@ def kill_switch():
                     if position['side'] =='short':
                         response = session.get_positions(
                             category="linear",
-                            symbol="SOLUSDT",
+                            symbol="AAVEUSDT",
                         )
                         print(f"{response}information")
                         positions = response['result']['list']
@@ -103,7 +103,7 @@ def kill_switch():
                     else :
                         response = session.get_positions(
                             category="linear",
-                            symbol="SOLUSDT",
+                            symbol="AAVEUSDT",
                         )
                         #print(f"{response}information")
                         positions = response['result']['list']

@@ -45,7 +45,7 @@ get_balance()
 
 
 #Step 4: Fetch historical data
-symbol = 'SOL/USDT'
+symbol = 'AAVE/USDT'
 amount = 0.7 
 type = 'market'
 timeframe = '30m'
@@ -60,12 +60,13 @@ print(df)
 # Step 5: Calculate technical indicators
 
 #df.ta.ema(length=20, append=True)
-a = ta.adx(df['High'], df['Low'], df['Close'], length = 14)
-df = df.join(a)
+#a = ta.adx(df['High'], df['Low'], df['Close'], length = 14)
+#df = df.join(a)
 #print(df)
-df.ta.ema(length=11, append=True)
-df.ta.ema(length=200, append=True)
+#df.ta.ema(length=11, append=True)
+#df.ta.ema(length=200, append=True)
 df.ta.ema(length=50, append=True)
+#df.ta.ema(length=100, append=True)
 df.ta.vwap(append=True)
 
 
@@ -73,19 +74,14 @@ df.ta.vwap(append=True)
 
 
 print(df)
-# Define the conditions for short and long trades
 
+# Define the conditions for short trades
 
-long_condition = ((df["Close"] > df["EMA_200"])& (df["Close"] > df["EMA_100"])& (df["Close"] < df["EMA_9"]) & (df["Close"] < df["VWAP_D"])& (df["EMA_9"] < df["VWAP_D"]) & (df["ADX_14"] > 18.3))
-
-long_trades = df.loc[long_condition]
-print(long_trades)
-# Define the conditions for short and long trades
-
-#short_condition = ((df["Close"] < df["EMA_9"]) & (df["Close"] < df["VWAP_D"]) & (df["ADX_14"] > 25))
-
+short_condition = ((df["Close"] > df["VWAP_D"]) & (df["Close"] < df["VWMA_50"]) & (df["Close"] < df["EMA_50"]) & (df["VWAP_D"] < df["VWMA_50"]) & (df["VWAP_D"] < df["EMA_50"]) & (df["VWMA_50"] < df["EMA_50"]))
 
 # Filter the DataFrame based on the conditions
+short_trades = df.loc[short_condition]
+
 
 
 
@@ -96,22 +92,22 @@ def trading_bot(df):
 
         positions = bybit.fetch_positions()
 
-        sol_positions = [position for position in positions if 'SOL' in position['symbol']]
+        check_positions = [position for position in positions if 'AAVE' in position['symbol']]
         print(f"open position {positions}")
-        openorder = bybit.fetch_open_orders(symbol='SOL/USDT')
+        openorder = bybit.fetch_open_orders(symbol='AAVE/USDT')
 
         
-        if not sol_positions:
+        if not check_positions:
             # Step 6: Implement the trading strategy
             for i, row in df.iterrows():
                 
-                if not long_trades.empty:
+                if not short_trades.empty:
                     response = session.place_order(
                         category="linear",
-                        symbol="SOLUSDT",
-                        side="Buy",
+                        symbol="AAVEUSDT",
+                        side="Sell",
                         orderType="Market",
-                        qty="0.3",
+                        qty="0.1",
                         timeInForce="GTC",
                     )
                     
@@ -145,8 +141,6 @@ def trading_bot(df):
                     entryPrice = position['entryPrice']
                     amount = position['contracts']
                     
-                    
-                    
                     print(f"{symbol} and {entryPrice}, {amount}")
                     
                     if position['unrealizedPnl'] is None or position['initialMargin'] is None:
@@ -159,18 +153,15 @@ def trading_bot(df):
                     
                     print(f"pnl {pnl} percent")
                     
-                        
-                    if pnl <= -15 or pnl >= 29:
+                     #6X LEVERAGAE stopless = 2.39 X 6= and tp= 3.62 x 6= 20.34  
+                    if pnl <= -14.3 or pnl >=  20.3:
                     #print(f"Closing position for {symbol} with PnL: {pnl}%")
                     
                         print(f"Closing position for {symbol} with PnL: {pnl}%")
                     
-                    
-                
-                        
                         response = session.get_positions(
                             category="linear",
-                            symbol="SOLUSDT",
+                            symbol="AAVEUSDT",
                         )
                         print(f"{response}information")
                         positions = response['result']['list']
@@ -178,7 +169,7 @@ def trading_bot(df):
                             unrealized_pnl = position['unrealisedPnl']
                             size = position['size']
                             
-                            side = 'Sell'
+                            side = 'Buy'
                             symbol = position['symbol']
                             order = session.place_order(
                                 category="linear",
@@ -195,7 +186,7 @@ def trading_bot(df):
                             print(f"Position closed: {order}")
                     
                 
-            time.sleep(20)
+            time.sleep(30)
 
     except ccxt.RequestTimeout as e:
         print(f"A request timeout occurred: {e}")
@@ -220,5 +211,5 @@ schedule.every(1).minutes.do(trading_bot, df)
 # Call the trading_bot function every 2 minutes
 while True:
     schedule.run_pending()
-    time.sleep(10)
+    time.sleep(20)
 
