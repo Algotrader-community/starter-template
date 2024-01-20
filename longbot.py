@@ -66,8 +66,8 @@ print(df)
 a = ta.adx(df['High'], df['Low'], df['Close'], length = 14)
 df = df.join(a)
 #print(df)
-df.ta.ema(length=11, append=True)
-df.ta.ema(length=200, append=True)
+df.ta.ema(length=100, append=True)
+df.ta.ema(length=21, append=True)
 df.ta.ema(length=50, append=True)
 df.ta.vwap(append=True)
 df.ta.vwma(length=50, append=True)
@@ -80,14 +80,13 @@ print(df)
 # Define the conditions for short and long trades
 
 
-long_condition = ((df["Close"] < df["VWAP_D"]) & (df["Close"] > df["VWMA_50"]) & (df["Close"] > df["EMA_50"]) & (df["VWAP_D"] > df["VWMA_50"]) & (df["VWAP_D"] > df["EMA_50"]) & (df["VWMA_50"] > df["EMA_50"]))
+long_condition = ((df["Close"] < df["VWAP_D"]) & (df["Close"] > df["EMA_21"]) & (df["Close"] > df["EMA_50"]) & (df["Close"] > df["EMA_100"]) & (df["VWAP_D"] > df["EMA_21"]) & (df["VWAP_D"] > df["EMA_50"]) & (df["EMA_21"] > df["EMA_50"])& (df["VWAP_D"] > df["EMA_100"])& (df["EMA_21"] > df["EMA_100"])& (df["EMA_50"] > df["EMA_100"]))
 
 long_trades = df.loc[long_condition]
 print(long_trades)
 # Define the conditions for short and long trades
 
-#long_condition = ((df["Close"] < df["VWAP_D"]) & (df["Close"] > df["VWMA_50"]) & (df["Close"] > df["EMA_50"]) & (df["VWAP_D"] > df["VWMA_50"]) & (df["VWAP_D"] > df["EMA_50"]) & (df["VWMA_50"] > df["EMA_50"]))
-
+#long_condition = ((df["Close"] > df["VWAP_D"]) & (df["Close"] > df["EMA_21"]) & (df["Close"] > df["EMA_50"]) & (df["Close"] > df["EMA_100"]) & (df["VWAP_D"] > df["EMA_21"]) & (df["VWAP_D"] > df["EMA_50"]) & (df["EMA_21"] > df["EMA_50"])& (df["VWAP_D"] > df["EMA_100"])& (df["EMA_21"] > df["EMA_100"])& (df["EMA_50"] > df["EMA_100"]))
 
 
 
